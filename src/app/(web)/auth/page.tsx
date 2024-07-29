@@ -1,8 +1,12 @@
 'use client'
 
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { signIn, useSession } from 'next-auth/react'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { AiFillGithub } from 'react-icons/ai'
 import { FcGoogle } from 'react-icons/fc'
+import { signUp } from 'next-auth-sanity/client'
 
 const defaultFormData = {
 	email: '',
@@ -14,20 +18,43 @@ export default function Auth() {
 	const inputStyles =
 		'border border-gray-300 sm:text-sm text-black rounded-lg block w-full p-2.5 focus:outline-none'
 
+	const router = useRouter()
+	const { data: session } = useSession()
+	console.log(session)
+
 	const [formData, setFormData] = useState(defaultFormData)
+
+	useEffect(() => {
+		if (session) router.push('/')
+	}, [router, session])
+
+	const loginHandler = async () => {
+		try {
+			await signIn()
+			router.push('/')
+		} catch (error) {
+			console.log(error)
+			toast.error("Something wen't wrong")
+		}
+	}
 
 	const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = event.target
 		setFormData({ ...formData, [name]: value })
 	}
 
-	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 
 		try {
-			console.log(formData)
+			const user = await signUp(formData)
+
+			if (user) {
+				toast.success('Success. Please sign in')
+			}
 		} catch (error) {
 			console.log(error)
+			toast.error("Something wen't wrong")
 		} finally {
 			setFormData(defaultFormData)
 		}
@@ -43,7 +70,10 @@ export default function Auth() {
 
 					<p>OR</p>
 					<span className='inline-flex items-center'>
-						<AiFillGithub className='mr-3 text-4xl cursor-pointer text-black dark:text-white' />{' '}
+						<AiFillGithub
+							className='mr-3 text-4xl cursor-pointer text-black dark:text-white'
+							onClick={loginHandler}
+						/>
 						|
 						<FcGoogle className='ml-3 text-4xl cursor-pointer' />
 					</span>
@@ -87,7 +117,9 @@ export default function Auth() {
 					</button>
 				</form>
 
-				<button className='text-blue-700 underline'>login</button>
+				<button className='text-blue-700 underline' onClick={loginHandler}>
+					login
+				</button>
 			</div>
 		</section>
 	)
