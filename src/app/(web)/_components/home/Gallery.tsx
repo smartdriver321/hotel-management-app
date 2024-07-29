@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-const Gallery = () => {
+export default function Gallery() {
 	return (
 		<div className='mx-auto container py-14 h-full'>
 			<div className='flex flex-wrap md:-m-2'>
@@ -66,5 +66,3 @@ const Gallery = () => {
 		</div>
 	)
 }
-
-export default Gallery
