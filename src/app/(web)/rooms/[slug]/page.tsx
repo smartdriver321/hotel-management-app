@@ -11,6 +11,7 @@ import { getRoom } from '@/libs/apis'
 import LoadingSpinner from '../../loading'
 import HotelPhotoGallery from '../../_components/rooms/HotelPhotoGallery'
 import BookRoomCta from '../../_components/rooms/BookRoomCta'
+import toast from 'react-hot-toast'
 
 export default function RoomDetails(props: { params: { slug: string } }) {
 	const {
@@ -40,7 +41,26 @@ export default function RoomDetails(props: { params: { slug: string } }) {
 		return null
 	}
 
-	const handleBookNowClick = () => {}
+	const calcNumDays = () => {
+		if (!checkinDate || !checkoutDate) return
+		const timeDiff = checkoutDate.getTime() - checkinDate.getTime()
+		const noOfDays = Math.ceil(timeDiff / (24 * 60 * 60 * 1000))
+		return noOfDays
+	}
+
+	const handleBookNowClick = async () => {
+		if (!checkinDate || !checkoutDate)
+			return toast.error('Please provide checkin / checkout date')
+
+		if (checkinDate > checkoutDate)
+			return toast.error('Please choose a valid checkin period')
+
+		try {
+		} catch (error) {
+			console.log('Error: ', error)
+			toast.error('An error occured')
+		}
+	}
 
 	return (
 		<div>
